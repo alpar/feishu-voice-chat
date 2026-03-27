@@ -1,0 +1,62 @@
+{
+  "voice_message_convention": {
+    "enabled": true,
+    "workflow": "语音转文本 → 文本理解 → 回复文本 → 文本转语音 → 发送回复",
+    "steps": [
+      {
+        "step": 1,
+        "name": "语音转文本",
+        "tool": "whisper",
+        "description": "将语音文件转换为文字内容",
+        "default_language": "Chinese"
+      },
+      {
+        "step": 2,
+        "name": "文本理解分析",
+        "tool": "ai_analysis",
+        "description": "分析文本意图和内容，生成合适的回复",
+        "intent_detection": {
+          "greeting": ["你好", "hello", "hi", "早上好", "晚上好"],
+          "thanks": ["谢谢", "感谢", "thank", "thanks"],
+          "question": ["问题", "帮助", "help", "怎么", "如何"],
+          "command": ["执行", "运行", "操作", "做", "处理"]
+        }
+      },
+      {
+        "step": 3,
+        "name": "生成回复文本",
+        "tool": "ai_generation",
+        "description": "根据理解结果生成自然流畅的回复文本"
+      },
+      {
+        "step": 4,
+        "name": "文本转语音",
+        "tool": "edge-tts",
+        "description": "将回复文本转换为语音",
+        "default_voice": "zh-CN-XiaoxiaoNeural"
+      },
+      {
+        "step": 5,
+        "name": "发送回复",
+        "tool": "feishu_api",
+        "description": "将语音和文字回复发送到原消息会话",
+        "send_both": true,
+        "reply_to_original": true
+      }
+    ],
+    "settings": {
+      "auto_detect_language": true,
+      "reply_with_voice": true,
+      "reply_with_text": true,
+      "use_original_message_id": true,
+      "fallback_to_text_only": true
+    },
+    "supported_formats": [
+      "ogg",
+      "mp3", 
+      "wav",
+      "m4a",
+      "flac"
+    ]
+  }
+}
