@@ -1,3 +1,8 @@
+---
+name: feishu-voice-chat
+description: "使用OpenAi Whisper（免费），微软 Edge TTS（免费）生成语音，发送到飞书。集成语音转文本、文本转语音功能，支持双向转换。无需 API key，音质优秀，支持多语言多音色。"
+---
+
 # Feishu-Voice-Chat - 飞书双向语音（OpenAi Whisper + 微软免费 TTS + 飞书语音条发送）
 
 使用OpenAi Whisper（免费），微软 Edge TTS（免费）生成语音，发送到飞书。集成语音转文本、文本转语音功能，支持双向转换。无需 API key，音质优秀，支持多语言多音色。
@@ -9,11 +14,33 @@
 - ✅ **双向转换**：文字→语音 + 语音→文字
 - ✅ **智能集成**：语音识别后自动发送语音+文字组合
 - ✅ **音质优秀**：微软 Azure 同款语音引擎
-- ✅ **多音色支持**：支持中文/英文/日文等多种语言
+- ✅ **多音色支持**：支持中文/英文/日文等多种语言，以及多音色
 - ✅ **语音条格式**：发送真正的飞书语音条（点击即播）
 - ✅ **语速调节**：支持 0.5x - 2.0x 语速
 - ✅ **音调调节**：支持音调高低调整
 
+## 🤖 飞书双向语音定义 (用于 agent 定义)
+- **`feishu-voice-chat`**：语音消息处理技能，负责飞书语音转文本和文本转语音、发送飞书语音条信息
+- **触发条件**：语音模式、收到语音消息、明确要求用语音回复的情况下调用
+- **处理流程**：
+   - 语音消息：语音消息→下载语音→文本转换→理解→生成回复→语音转换→发语音消息
+   - 语音回复：文本→语音转换→发语音消息
+- **核心原则**：
+   - 不走 OpenClaw 内置 tts 工具
+   - 独立使用`feishu-voice-chat`技能
+   - 通过`send_voice.sh`脚本发送语音消息
+- **语音消息入口**：通过`openclaw_audio_bridge.sh`桥接OpenClaw语音消息，chat_id为消息体里的om_打头消息
+- **语音转文本**：`bash scripts/voice_to_text.sh -i voice.ogg`
+- **语音发送**：`bash scripts/send_voice.sh -t "语音内容" --reply-to "om_消息ID"`	
+
+## ⚙️ 当前部署约定（本环境）
+
+- OpenClaw 原生 `tools.media.audio` 已禁用，否则可能出现 60 秒阻断问题
+- agent 侧定义添加使用 `feishu-voice-chat` 技能处理飞书语音消息（可以借鉴**飞书双向语音定义**）
+
+## 核心原则
+1. ❌ **不走OpenClaw内置语音** - 不使用内置 `tts` 工具
+2. ✅ **正确走skill: feishu_voice** - 独立文本转语音 + 发送到会话ID
 
 ## 技术实现架构
 - **技能路径**：`skills/feishu-voice-chat/`
@@ -39,6 +66,28 @@ bash scripts/openclaw_audio_bridge.sh \
 # 文本转语音并发送
 bash scripts/send_voice.sh -t "语音内容" --reply-to "om_消息ID"
 ```
+
+### 配置自动读取机制
+- ✅ 自动从 `~/.openclaw/openclaw.json` 读取飞书配置
+- ✅ 无需手动设置 `FEISHU_APP_ID` 和 `FEISHU_APP_SECRET`
+- ✅ 配置路径：`channels.feishu.appId` 和 `channels.feishu.appSecret`
+
+### 执行流程验证
+1. ✅ 语音生成成功（微软 Edge TTS）
+2. ✅ 文件上传成功（飞书云存储）
+3. ✅ 消息发送成功（飞书 IM API）
+4. ✅ 回复目标正确（支持消息线程）
+
+### 错误处理约定
+- ❌ 禁止调用 OpenClaw 内置 `tts` 工具
+- ❌ 禁止将 `asVoice` 参数作为发送通道
+- ✅ 必须通过 `feishu-voice` 技能独立处理
+
+### 最佳实践
+- 语音内容控制在 1500 字符以内
+- 优先使用默认音色 `zh-CN-XiaoxiaoNeural`
+- 回复消息时指定 `--reply-to` 参数保持对话上下文
+- 长语音建议分段发送，每段不超过30秒
 
 ## 🎤 可用音色
 
@@ -83,6 +132,11 @@ bash scripts/openclaw_audio_bridge.sh \
   -m om_xxx \
   --stt-model small
 ```
+特点：
+- 不改 OpenClaw 主程序
+- 默认使用 `small`
+- 低配电脑可降到 `tiny`
+- 直接回复原消息线程
 
 ### 步骤 3：发送语音
 

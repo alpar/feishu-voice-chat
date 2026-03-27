@@ -1,0 +1,12 @@
+{
+  "name": "feishu-voice-chat",
+  "version": "0.1.0",
+  "description": "使用OpenAi Whisper（免费），微软 Edge TTS（免费）生成语音，发送到飞书。集成语音转文本、文本转语音功能，支持双向转换。无需 API key，音质优秀，支持多语言多音色。",
+  "author": "何昕 (Alpar)",
+  "license": "MIT",
+  "tags": ["feishu", "voice", "whisper", "stt", "openai", "edge-tts", "microsoft", "free", "chinese"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alpar.wen/feishu-voice-chat"
+  }
+}

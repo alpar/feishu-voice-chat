@@ -1,0 +1,11 @@
+{
+  "owner": "alpar.wen",
+  "slug": "feishu-voice-chat",
+  "displayName": "Feishu voice chat - 飞书双向语音（免费）",
+  "latest": {
+    "version": "1.0.0",
+    "publishedAt": 1772889939442,
+    "commit": "a25cfa7e02de62427b55444defc4360e"
+  },
+  "history": []
+}
